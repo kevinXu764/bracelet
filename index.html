@@ -7,144 +7,174 @@
   <meta name="description" content="香慧合香珠定制体验。寻一味合心的香，做一串属于自己的合香珠。">
   <title>香慧 · 合香珠定制</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=3">
   <script src="data.js" defer></script>
-  <script src="app.js?v=2" defer></script>
+  <script src="app.js?v=3" defer></script>
 </head>
 <body>
 <div class="app-shell">
-  <header class="site-header">
-    <button class="brand" data-action="home" aria-label="香慧首页">
-      <span class="brand-seal" aria-hidden="true">香</span>
-      <span class="brand-type"><strong>香慧</strong><small>HEXIANG ATELIER</small></span>
-    </button>
-    <div class="header-actions">
-      <button class="icon-button" data-action="about" aria-label="关于香慧"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.5"/><path d="M12 10.5v6M12 7.5v.2"/></svg></button>
-      <button class="icon-button bag-button" data-action="orders" aria-label="我的定制申请"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 8.5h14l1 12H4l1-12Z"/><path d="M8.5 9V6a3.5 3.5 0 0 1 7 0v3"/></svg><span id="order-count" hidden>0</span></button>
-    </div>
-  </header>
+  <header class="site-header" id="page-header"></header>
 
   <main>
-    <div id="landing-view">
-    <section class="hero" aria-label="合香珠定制介绍">
-      <img class="hero-image" src="assets/hero.webp" alt="米白陶盘上的木质合香珠与淡青玉珠" fetchpriority="high">
-      <div class="hero-copy">
-        <p class="eyebrow">一珠一香方 · 一串一个你</p>
-        <h1>一串香韵<br>恰如其人<span class="hero-dot">。</span></h1>
-        <p class="hero-description">把喜欢的香，戴在腕间。<br>循着心意，定制属于你的合香珠。</p>
-        <button class="hero-link" id="hero-start" data-action="start">开始我的定制 <span aria-hidden="true">→</span></button>
-      </div>
-      <span class="hero-stamp" aria-hidden="true">古方<br>合香</span>
-      <div class="hero-caption"><span>以香养身 · 以慧养心</span><span>EST. IN NATURE</span></div>
-    </section>
+    <div class="tab-view" id="tab-home">
+      <section class="hero" aria-label="合香珠定制介绍">
+        <img class="hero-image" src="assets/hero.webp" alt="米白陶盘上的木质合香珠与淡青玉珠" fetchpriority="high">
+        <div class="hero-copy">
+          <p class="eyebrow">一珠一香方 · 一串一个你</p>
+          <h1>一串香韵<br>恰如其人<span class="hero-dot">。</span></h1>
+          <p class="hero-description">把喜欢的香，戴在腕间。<br>循着心意，定制属于你的合香珠。</p>
+          <button class="hero-link" id="hero-start" data-action="start">开始我的定制 <span aria-hidden="true">→</span></button>
+        </div>
+        <span class="hero-stamp" aria-hidden="true">古方<br>合香</span>
+        <div class="hero-caption"><span>以香养身 · 以慧养心</span><span>EST. IN NATURE</span></div>
+      </section>
 
-    <div class="craft-values"><span><i>01</i> 古方合香</span><span><i>02</i> 手工成珠</span><span><i>03</i> 随心定制</span></div>
-
-    <section class="process-intro" aria-labelledby="process-title">
-      <div class="intro-heading"><h2 id="process-title">4 步，做一串属于你的香</h2><span>每次完成一步</span></div>
-      <ol class="process-list">
-        <li><span>1</span><strong>选香方</strong><small>找到喜欢的香</small></li>
-        <li><span>2</span><strong>定手围</strong><small>确认舒适尺寸</small></li>
-        <li><span>3</span><strong>选款式</strong><small>搭配造型与规格</small></li>
-        <li><span>4</span><strong>确认方案</strong><small>留下联系信息</small></li>
-      </ol>
-      <p>按「下一步」依次完成，也可以返回修改已选内容。</p>
-      <div id="resume-plan" class="resume-plan" hidden></div>
-    </section>
-    <button class="discovery-card" id="landing-quiz" data-action="quiz">
-      <div class="discovery-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor"><path d="M20 4v32M4 20h32M9 9l22 22M9 31 31 9"/><circle cx="20" cy="20" r="10"/></svg></div>
-      <div><p class="eyebrow">FIND YOUR SCENT</p><h2>还没遇见合心的香？</h2><p>30 道轻问答，让心意带你寻香。</p></div>
-      <span class="discovery-arrow" aria-hidden="true">→</span>
-    </button>
-    </div>
-
-    <div id="customizer-view" hidden>
-    <div class="flow-navigation">
-      <div class="flow-topline"><strong>我的合香珠定制</strong><span id="flow-progress">第 1 步 / 共 4 步</span></div>
-
-    <nav class="step-nav" aria-label="定制步骤">
-      <button class="step active" data-action="jump" data-step="1"><span class="step-number">1</span><strong>选香方</strong><small>进行中</small></button>
-      <button class="step" data-action="jump" data-step="2"><span class="step-number">2</span><strong>定手围</strong><small>待完成</small></button>
-      <button class="step" data-action="jump" data-step="3"><span class="step-number">3</span><strong>选款式</strong><small>待完成</small></button>
-      <button class="step" data-action="jump" data-step="4"><span class="step-number">4</span><strong>确认方案</strong><small>待完成</small></button>
-    </nav>
-    </div>
-
-    <section class="craft-section" id="step-1" data-section="1" aria-labelledby="step-title-1">
-      <div class="section-heading"><div><p class="eyebrow">第 1 步 · 选香方</p><h2 id="step-title-1" tabindex="-1">选择一味喜欢的香</h2></div><span class="section-caption">44 味香方</span></div>
-      <p class="section-description">点击「选这味」选定香方，再按底部「下一步」继续。</p>
-      <div class="selected-note" id="recipe-selected-note" role="status" aria-live="polite"></div>
-      <div class="segmented" id="recipe-tabs" role="group" aria-label="香方系列"></div>
-      <div class="search-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="recipe-search" type="search" placeholder="搜索香方、香调或场景" aria-label="搜索香方、香调或场景" autocomplete="off"><button id="search-clear" data-action="clear-search" aria-label="清空搜索" hidden>×</button></div>
-      <div class="scent-tags" id="scent-tags" role="group" aria-label="香调筛选"></div>
-      <div class="catalog-meta"><span id="recipe-result-count"></span><button class="text-button" data-action="quiz" id="quiz-inline">不知道怎么选？寻香自测 ↗</button></div>
-      <div class="recipe-grid" id="recipe-grid"></div>
-      <button class="load-more" id="recipe-more" data-action="more-recipes" hidden></button>
-    </section>
-
-    <section class="craft-section" id="step-2" data-section="2" aria-labelledby="step-title-2" hidden>
-      <div class="section-heading"><div><p class="eyebrow">第 2 步 · 定手围</p><h2 id="step-title-2" tabindex="-1">确认你的手围</h2></div><button class="text-button" data-action="measure">如何测量 <span aria-hidden="true">↗</span></button></div>
-      <p class="section-description">填写实际手围并选择佩戴感，确认后进入下一步。</p>
-      <div class="selected-note" id="fit-selection-state" role="status" aria-live="polite"></div>
-      <div class="fit-panel">
-        <div class="wrist-display"><span>你的手围</span><strong id="wrist-value">16.0<small>cm</small></strong><span class="wrist-caption">贴皮肤测量，不含松量</span></div>
-        <div class="range-control"><button class="small-circle" data-action="wrist-down" aria-label="手围减小0.5厘米">−</button><input id="wrist-range" type="range" min="13" max="22" step="0.5" value="16" aria-label="手围，厘米"><button class="small-circle" data-action="wrist-up" aria-label="手围增大0.5厘米">+</button></div>
-        <div class="range-labels"><span>13 cm</span><span>22 cm</span></div>
-        <div class="wrist-presets" id="wrist-presets"></div>
-        <div class="fit-divider"></div>
-        <div class="field-label">喜欢怎样的佩戴感？</div>
-        <div class="fit-options" id="fit-options"></div>
-        <div class="fit-hint"><span class="hint-dot"></span><span id="fit-hint"></span></div>
-      </div>
-    </section>
-
-    <section class="craft-section" id="step-3" data-section="3" aria-labelledby="step-title-3" hidden>
-      <div class="section-heading"><div><p class="eyebrow">第 3 步 · 选款式</p><h2 id="step-title-3" tabindex="-1">选择款式与规格</h2></div><span class="section-caption">23 款造型</span></div>
-      <p class="section-description">先选择喜欢的款式，再调整珠径和颗数。</p>
-      <div class="selected-note" id="style-selected-note" role="status" aria-live="polite"></div>
-      <h3 class="subsection-title">1. 选择喜欢的款式</h3>
-      <div class="style-nav" id="style-tabs" role="group" aria-label="浏览款式系列"></div>
-      <div class="catalog-meta"><span id="style-result-count"></span><span class="muted-small">点图片看大图，点按钮选款</span></div>
-      <div class="style-grid" id="style-grid"></div>
-      <button class="load-more" id="style-more" data-action="more-styles" hidden></button>
-      <h3 class="subsection-title" id="spec-title">2. 调整珠径和颗数</h3>
-      <p id="spec-placeholder" class="spec-placeholder">选择款式后，即可在这里调整规格。</p>
-      <div class="spec-panel" id="spec-panel" hidden>
-        <div class="spec-heading"><span>珠径</span><span id="diameter-description">小巧细致 / 温润适中</span></div>
-        <div class="diameter-options" id="diameter-options"></div>
-        <div class="quantity-row"><div><span class="field-label">合香珠颗数</span><p id="quantity-note">按手围估算，可微调</p></div><div class="quantity-control"><button data-action="quantity-down" aria-label="减少一颗合香珠">−</button><strong id="quantity-value">17</strong><button data-action="quantity-up" aria-label="增加一颗合香珠">+</button></div></div>
-        <p class="spec-hint" id="spec-hint" hidden></p>
+      <div class="entry-grid">
+        <button class="entry-card" data-action="start">
+          <span class="entry-mark" aria-hidden="true">制</span>
+          <strong>定制手串</strong>
+          <small id="entry-customize-note">4 步，做一串属于你的香</small>
+          <span class="entry-arrow" aria-hidden="true">→</span>
+        </button>
+        <button class="entry-card" data-action="open-quiz">
+          <span class="entry-mark" aria-hidden="true">寻</span>
+          <strong>寻香自测</strong>
+          <small id="entry-quiz-note">30 道轻问答，凭心意寻香</small>
+          <span class="entry-arrow" aria-hidden="true">→</span>
+        </button>
       </div>
 
-    </section>
+      <section class="process-intro" aria-labelledby="process-title">
+        <div class="intro-heading"><h2 id="process-title">4 步，做一串属于你的香</h2><span>每次完成一步</span></div>
+        <ol class="process-list">
+          <li><span>1</span><strong>选香方</strong><small>找到喜欢的香</small></li>
+          <li><span>2</span><strong>定手围</strong><small>确认舒适尺寸</small></li>
+          <li><span>3</span><strong>选款式</strong><small>搭配造型与规格</small></li>
+          <li><span>4</span><strong>确认方案</strong><small>留下联系信息</small></li>
+        </ol>
+        <p>按「下一步」依次完成，也可以返回修改已选内容。</p>
+        <div id="resume-plan" class="resume-plan" hidden></div>
+      </section>
 
-    <section class="craft-section confirmation-section" id="step-4" data-section="4" aria-labelledby="step-title-4" hidden>
-      <div class="section-heading"><div><p class="eyebrow">第 4 步 · 确认方案</p><h2 id="step-title-4" tabindex="-1">确认你的定制方案</h2></div><button class="text-button" data-action="reset-plan">重新搭配</button></div>
-      <p class="section-description">核对已选内容，可随时修改；填写联系信息后提交。</p>
-      <div class="summary-card" id="summary-card"></div>
-      <form id="order-form" novalidate>
-        <div class="contact-heading"><span class="field-label">定制联系信息</span><span class="muted-small">用于后续确认方案</span></div>
-        <div class="form-row"><label for="contact-name">称呼 <span class="required-mark" aria-hidden="true">*</span></label><input id="contact-name" name="name" maxlength="24" placeholder="怎么称呼你" required autocomplete="name" aria-describedby="name-error"></div><p id="name-error" class="field-error" role="alert" hidden></p>
-        <div class="form-row"><label for="contact-phone">手机号 <span class="required-mark" aria-hidden="true">*</span></label><input id="contact-phone" name="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="填写11位手机号" required autocomplete="tel" aria-describedby="phone-error"></div><p id="phone-error" class="field-error" role="alert" hidden></p>
-        <label class="note-label" for="contact-note">想对制香师说的话 <span>选填</span></label><textarea id="contact-note" name="note" rows="3" maxlength="300" placeholder="例如：偏爱淡香，送给朋友，想搭配青色玉珠…"></textarea>
-        <div id="form-error" role="alert" hidden></div>
-        <button class="primary-button submit-button" type="submit">提交定制申请 <span aria-hidden="true">↗</span></button>
-        <p class="form-caption">体验申请仅保存在当前浏览器，不产生真实付款。</p>
-      </form>
-    </section>
+      <section class="home-recipes" aria-labelledby="featured-title">
+        <div class="intro-heading"><h2 id="featured-title">香方精选</h2><span>四种香调，各一味</span></div>
+        <div class="recipe-grid" id="featured-grid"></div>
+        <button class="text-button" data-action="start">按喜好挑香方 <span aria-hidden="true">→</span></button>
+      </section>
 
+      <div class="craft-values"><span><i>01</i> 古方合香</span><span><i>02</i> 手工成珠</span><span><i>03</i> 随心定制</span></div>
+
+      <footer class="site-footer"><span class="footer-seal" aria-hidden="true">香</span><p>以香养身 · 以慧养心</p><div><button data-action="page" data-id="about">关于合香</button><span>·</span><button data-action="page" data-id="care">佩戴养护</button></div><small>一珠一香方，一串一个你。</small></footer>
     </div>
 
-    <footer class="site-footer"><span class="footer-seal" aria-hidden="true">香</span><p>以香养身 · 以慧养心</p><div><button data-action="about">关于合香</button><span>·</span><button data-action="care">佩戴养护</button></div><small>一珠一香方，一串一个你。</small></footer>
+    <div class="tab-view" id="tab-customize" hidden>
+      <div class="flow-navigation">
+        <nav class="step-nav" aria-label="定制步骤">
+          <button class="step active" data-action="jump" data-step="1"><span class="step-number">1</span><strong>选香方</strong><small>进行中</small></button>
+          <button class="step" data-action="jump" data-step="2"><span class="step-number">2</span><strong>定手围</strong><small>待完成</small></button>
+          <button class="step" data-action="jump" data-step="3"><span class="step-number">3</span><strong>选款式</strong><small>待完成</small></button>
+          <button class="step" data-action="jump" data-step="4"><span class="step-number">4</span><strong>确认方案</strong><small>待完成</small></button>
+        </nav>
+      </div>
+
+      <section class="craft-section" id="step-1" data-section="1" aria-labelledby="step-title-1">
+        <div class="section-heading"><div><p class="eyebrow">第 1 步 · 选香方</p><h2 id="step-title-1" tabindex="-1">选择一味喜欢的香</h2></div><span class="section-caption">44 味香方</span></div>
+        <p class="section-description">点击「选这味」选定香方，再按下方「下一步」继续。</p>
+        <div class="selected-note" id="recipe-selected-note" role="status" aria-live="polite"></div>
+        <div class="segmented" id="recipe-tabs" role="group" aria-label="香方系列"></div>
+        <div class="search-field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="recipe-search" type="search" placeholder="搜索香方、香调或场景" aria-label="搜索香方、香调或场景" autocomplete="off"><button id="search-clear" data-action="clear-search" aria-label="清空搜索" hidden>×</button></div>
+        <div class="scent-tags" id="scent-tags" role="group" aria-label="香调筛选"></div>
+        <div class="catalog-meta"><span id="recipe-result-count"></span><button class="text-button" data-action="open-quiz" id="quiz-inline">不知道怎么选？寻香自测 ↗</button></div>
+        <div class="recipe-grid" id="recipe-grid"></div>
+        <button class="load-more" id="recipe-more" data-action="more-recipes" hidden></button>
+        <div class="step-cta"><button class="primary-button" data-action="next" id="cta-1">下一步 · 定手围 <span aria-hidden="true">→</span></button></div>
+      </section>
+
+      <section class="craft-section" id="step-2" data-section="2" aria-labelledby="step-title-2" hidden>
+        <div class="section-heading"><div><p class="eyebrow">第 2 步 · 定手围</p><h2 id="step-title-2" tabindex="-1">确认你的手围</h2></div><button class="text-button" data-action="page" data-id="measure">如何测量 <span aria-hidden="true">↗</span></button></div>
+        <p class="section-description">填写实际手围并选择佩戴感，确认后进入下一步。</p>
+        <div class="selected-note" id="fit-selection-state" role="status" aria-live="polite"></div>
+        <div class="fit-panel">
+          <div class="wrist-display"><span>你的手围</span><strong id="wrist-value">16.0<small>cm</small></strong><span class="wrist-caption">贴皮肤测量，不含松量</span></div>
+          <div class="range-control"><button class="small-circle" data-action="wrist-down" aria-label="手围减小0.5厘米">−</button><input id="wrist-range" type="range" min="13" max="22" step="0.5" value="16" aria-label="手围，厘米"><button class="small-circle" data-action="wrist-up" aria-label="手围增大0.5厘米">+</button></div>
+          <div class="range-labels"><span>13 cm</span><span>22 cm</span></div>
+          <div class="wrist-presets" id="wrist-presets"></div>
+          <div class="fit-divider"></div>
+          <div class="field-label">喜欢怎样的佩戴感？</div>
+          <div class="fit-options" id="fit-options"></div>
+          <div class="fit-hint"><span class="hint-dot"></span><span id="fit-hint"></span></div>
+        </div>
+        <div class="step-cta"><button class="primary-button" data-action="next">确认手围 · 选款式 <span aria-hidden="true">→</span></button><button class="text-button" data-action="prev">返回上一步</button></div>
+      </section>
+
+      <section class="craft-section" id="step-3" data-section="3" aria-labelledby="step-title-3" hidden>
+        <div class="section-heading"><div><p class="eyebrow">第 3 步 · 选款式</p><h2 id="step-title-3" tabindex="-1">选择款式与规格</h2></div><span class="section-caption">23 款造型</span></div>
+        <p class="section-description">先选择喜欢的款式，再调整珠径和颗数。</p>
+        <div class="selected-note" id="style-selected-note" role="status" aria-live="polite"></div>
+        <h3 class="subsection-title">1. 选择喜欢的款式</h3>
+        <div class="style-nav" id="style-tabs" role="group" aria-label="浏览款式系列"></div>
+        <div class="catalog-meta"><span id="style-result-count"></span><span class="muted-small">点图片看大图，点按钮选款</span></div>
+        <div class="style-grid" id="style-grid"></div>
+        <button class="load-more" id="style-more" data-action="more-styles" hidden></button>
+        <h3 class="subsection-title" id="spec-title">2. 调整珠径和颗数</h3>
+        <p id="spec-placeholder" class="spec-placeholder">选择款式后，即可在这里调整规格。</p>
+        <div class="spec-panel" id="spec-panel" hidden>
+          <div class="spec-heading"><span>珠径</span><span id="diameter-description">小巧细致 / 温润适中</span></div>
+          <div class="diameter-options" id="diameter-options"></div>
+          <div class="quantity-row"><div><span class="field-label">合香珠颗数</span><p id="quantity-note">按手围估算，可微调</p></div><div class="quantity-control"><button data-action="quantity-down" aria-label="减少一颗合香珠">−</button><strong id="quantity-value">17</strong><button data-action="quantity-up" aria-label="增加一颗合香珠">+</button></div></div>
+          <p class="spec-hint" id="spec-hint" hidden></p>
+        </div>
+        <div class="step-cta"><button class="primary-button" data-action="next" id="cta-3">下一步 · 确认方案 <span aria-hidden="true">→</span></button><button class="text-button" data-action="prev">返回上一步</button></div>
+      </section>
+
+      <section class="craft-section confirmation-section" id="step-4" data-section="4" aria-labelledby="step-title-4" hidden>
+        <div class="section-heading"><div><p class="eyebrow">第 4 步 · 确认方案</p><h2 id="step-title-4" tabindex="-1">确认你的定制方案</h2></div><button class="text-button" data-action="reset-plan">重新搭配</button></div>
+        <p class="section-description">核对已选内容，可随时修改；填写联系信息后提交。</p>
+        <div class="summary-card" id="summary-card"></div>
+        <form id="order-form" novalidate>
+          <div class="contact-heading"><span class="field-label">定制联系信息</span><span class="muted-small">用于后续确认方案</span></div>
+          <div class="form-row"><label for="contact-name">称呼 <span class="required-mark" aria-hidden="true">*</span></label><input id="contact-name" name="name" maxlength="24" placeholder="怎么称呼你" required autocomplete="name" aria-describedby="name-error"></div><p id="name-error" class="field-error" role="alert" hidden></p>
+          <div class="form-row"><label for="contact-phone">手机号 <span class="required-mark" aria-hidden="true">*</span></label><input id="contact-phone" name="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="填写11位手机号" required autocomplete="tel" aria-describedby="phone-error"></div><p id="phone-error" class="field-error" role="alert" hidden></p>
+          <label class="note-label" for="contact-note">想对制香师说的话 <span>选填</span></label><textarea id="contact-note" name="note" rows="3" maxlength="300" placeholder="例如：偏爱淡香，送给朋友，想搭配青色玉珠…"></textarea>
+          <div id="form-error" role="alert" hidden></div>
+          <button class="primary-button submit-button" type="submit">提交定制申请 <span aria-hidden="true">↗</span></button>
+          <p class="form-caption">体验申请仅保存在当前浏览器，不产生真实付款。</p>
+        </form>
+        <div class="step-cta"><button class="text-button" data-action="prev">返回上一步</button></div>
+      </section>
+    </div>
+
+    <div class="tab-view" id="tab-mine" hidden>
+      <div class="mine-profile" id="mine-profile"></div>
+
+      <div class="list-group">
+        <div class="list-group-title">我的定制</div>
+        <button class="list-row" data-action="start"><span class="row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="4.5" r="1.6" fill="currentColor" stroke="none"/></svg></span><span class="row-label">进行中的搭配</span><span class="row-value" id="mine-ongoing">未开始</span><span class="row-chevron" aria-hidden="true">›</span></button>
+        <button class="list-row" data-action="page" data-id="orders"><span class="row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 6.5h14M5 12h14M5 17.5h9"/></svg></span><span class="row-label">我的定制申请</span><span class="row-value" id="mine-orders">0 条</span><span class="row-chevron" aria-hidden="true">›</span></button>
+        <button class="list-row" data-action="page" data-id="favorites"><span class="row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.8 4.8a5.5 5.5 0 0 0-7.8 0L12 5.9l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.4a5.5 5.5 0 0 0 0-7.8Z"/></svg></span><span class="row-label">我的收藏</span><span class="row-value" id="mine-favorites">0 味</span><span class="row-chevron" aria-hidden="true">›</span></button>
+        <button class="list-row" data-action="open-quiz"><span class="row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.5"/><path d="m15 9-2.3 5.7L9 15l2.3-5.7Z"/></svg></span><span class="row-label">寻香结果</span><span class="row-value" id="mine-result">还未自测</span><span class="row-chevron" aria-hidden="true">›</span></button>
+      </div>
+
+      <p class="mine-caption">这是一份移动端 H5 演示，香方、款式与价格均为体验数据，申请只保存在当前浏览器。</p>
+    </div>
+
+    <div class="tab-view" id="page-view" hidden>
+      <div class="page-body" id="page-body"></div>
+    </div>
+
+    <noscript><div class="noscript">请启用 JavaScript 以体验合香珠定制。</div></noscript>
   </main>
 
-  <div class="bottom-bar landing" id="bottom-bar">
-    <div class="bottom-summary"><div class="bottom-info"><small id="bottom-label">按 4 步完成专属搭配</small><strong id="bottom-value">定制你的合香珠</strong></div><span id="bottom-price" hidden></span></div>
-    <div class="bottom-actions"><button id="bottom-back" class="secondary-button" data-action="prev" hidden>上一步</button><button id="bottom-next" class="primary-button" data-action="next">开始我的定制 <span aria-hidden="true">→</span></button></div>
-  </div>
+  <footer class="app-footer">
+    <nav class="tab-bar" aria-label="主导航">
+      <button class="tab-item" data-action="tab" data-id="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20h-5.5v-5h-5v5H4Z"/></svg><span>首页</span></button>
+      <button class="tab-item" data-action="tab" data-id="customize"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="7.6"/><circle cx="12" cy="4.4" r="1.8" fill="currentColor" stroke="none"/><circle cx="19.2" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="4.8" cy="10" r="1.3" fill="currentColor" stroke="none"/></svg><span>定制</span><span class="tab-dot" id="dot-customize" hidden></span></button>
+      <button class="tab-item" data-action="tab" data-id="mine"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8.2" r="3.8"/><path d="M5 20c.7-4 3.3-6 7-6s6.3 2 7 6"/></svg><span>我的</span><span class="tab-badge" id="badge-mine" hidden>0</span></button>
+    </nav>
+    <p class="demo-flag">演示demo</p>
+  </footer>
 </div>
 <dialog id="experience-dialog" aria-labelledby="dialog-title"></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
-<noscript><div class="noscript">请启用 JavaScript 以体验合香珠定制。</div></noscript>
 </body>
 </html>
