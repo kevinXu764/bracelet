@@ -2,7 +2,6 @@
   'use strict';
   const D = window.HX_DATA;
   const $ = id => document.getElementById(id);
-  const KEY = 'xianghui-atelier-v1';
   const TAB_TITLES = { customize: '合香珠定制', mine: '我的' };
   const PAGE_TITLES = { quiz: '寻香自测', orders: '我的定制申请', favorites: '我的收藏', measure: '如何测量手围', care: '佩戴与养护', about: '关于香慧' };
   const stepNames = ['', '选香方', '定手围', '选款式', '确认方案'];
@@ -19,29 +18,15 @@
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (paths[name] || paths.leaf) + '</svg>';
   };
 
-  let stored = {};
-  try { stored = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (_) {}
-  const plan = Object.assign(defaults(), stored.plan || {});
-  if (!D.recipes.some(r => r.id === plan.recipeId)) plan.recipeId = null;
-  if (!D.styles.some(s => s.id === plan.styleId)) plan.styleId = null;
-  plan.wrist = Math.min(22, Math.max(13, Number(plan.wrist) || 16));
-  plan.fit = D.fits.some(f => f.id === plan.fit) ? plan.fit : 'comfort';
-  plan.diameter = [8, 10, 12, 15].includes(plan.diameter) ? plan.diameter : 10;
-  plan.quantity = Math.min(150, Math.max(8, Number(plan.quantity) || 17));
-  const savedAnswers = stored.quiz && Array.isArray(stored.quiz.answers) ? stored.quiz.answers : [];
-  const answers = D.questions.map((_, i) => [1, 2, 3, 4, 5].includes(savedAnswers[i]) ? savedAnswers[i] : null);
   const state = {
-    plan,
-    favorites: Array.isArray(stored.favorites) ? stored.favorites.filter(id => D.recipes.some(r => r.id === id)) : [],
-    orders: Array.isArray(stored.orders) ? stored.orders.filter(o => o && D.recipes.some(r => r.id === o.recipeId) && D.styles.some(s => s.id === o.styleId)).slice(0, 40) : [],
-    quiz: { answers, index: Math.min(29, Math.max(0, Number(stored.quiz && stored.quiz.index) || 0)), complete: answers.every(a => a !== null) },
+    plan: defaults(),
+    favorites: [],
+    orders: [],
+    quiz: { answers: D.questions.map(() => null), index: 0, complete: false },
     quizView: 'question',
     series: 'premium', scent: '全部', query: '', recipeExpanded: false,
     styleCategory: 'single', styleExpanded: false,
-    tab: ['home', 'customize', 'mine'].includes(stored.view && stored.view.tab) ? stored.view.tab : 'home',
-    page: null,
-    activeStep: [1, 2, 3, 4].includes(stored.view && stored.view.activeStep) ? stored.view.activeStep : 1,
-    resumeStep: Number(stored.view && stored.view.resumeStep) || 0
+    tab: 'home', page: null, activeStep: 1, resumeStep: 0
   };
   let modalType = null, modalData = null, previousFocus = null, quizTimer = null, toastTimer = null, answerLocked = false, submitting = false;
   const dialog = $('experience-dialog');
@@ -52,10 +37,6 @@
   const categoryName = id => (D.styleCategories.find(s => s.id === id) || {}).name || '';
   const estimatedQuantity = () => { const s = style(); return s && s.fixed ? s.fixed : Math.max(8, Math.round((state.plan.wrist + fit().extra) * 10 / state.plan.diameter) * (s ? s.rings : 1)); };
   const price = () => { const r = recipe(), s = style(); if (!r) return 0; return Math.max(0, r.price + (s ? s.extra : 0) + ({ 8: -10, 10: 0, 12: 20, 15: 50 }[state.plan.diameter]) + Math.max(0, state.plan.quantity - 19) * 3); };
-  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ version: 3, plan: state.plan, favorites: state.favorites, quiz: state.quiz, orders: state.orders, view: { tab: state.tab, activeStep: state.activeStep, resumeStep: state.resumeStep } })); return true; } catch (_) { return false; } };
-  if (style() && !style().allowed.includes(plan.diameter)) plan.diameter = style().allowed[0];
-  if (style() && style().fixed) plan.quantity = style().fixed;
-  else if (plan.autoQuantity) plan.quantity = estimatedQuantity();
 
   function toast(text) { $('toast').textContent = text; $('toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('visible'), 2700); }
   const availableStep = () => !recipe() ? 1 : !state.plan.wristConfirmed ? 2 : !style() ? 3 : 4;
@@ -65,7 +46,7 @@
     state.page = null;
     state.tab = tab;
     if (tab === 'customize') state.activeStep = Math.min(4, Math.max(1, step || state.resumeStep || availableStep()));
-    persist(); render();
+    render();
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
   function jump(step) {
@@ -73,13 +54,13 @@
     if (step > allowed) { toast(allowed === 1 ? '请先选择一味香方' : allowed === 2 ? '请先确认手围与佩戴感' : '请先选择喜欢的款式'); step = allowed; }
     step = Math.min(4, Math.max(1, step));
     const changed = state.activeStep !== step || state.tab !== 'customize' || state.page;
-    state.tab = 'customize'; state.page = null; state.activeStep = step; state.resumeStep = step; persist(); render();
+    state.tab = 'customize'; state.page = null; state.activeStep = step; state.resumeStep = step; render();
     if (changed) { window.scrollTo({ top: 0, behavior: 'instant' }); requestAnimationFrame(() => $('step-title-' + step).focus({ preventScroll: true })); }
   }
   function startCustomization() { goTab('customize'); }
   function advance() {
     if (state.activeStep === 1) { if (!recipe()) { toast('请先选择一味香方'); return; } jump(2); return; }
-    if (state.activeStep === 2) { state.plan.wristConfirmed = true; persist(); render(); jump(3); return; }
+    if (state.activeStep === 2) { state.plan.wristConfirmed = true; render(); jump(3); return; }
     if (state.activeStep === 3) { if (!style()) { toast('请先选择喜欢的款式'); return; } jump(4); return; }
     submitOrder();
   }
@@ -261,8 +242,8 @@
     if (!state.orders.length) return '<div class="empty-state">' + icon('bag') + '<h3>还没有定制申请</h3><p>从一味喜欢的香，开始你的第一串。</p><button data-action="start">去开启定制 ↗</button></div>';
     return state.orders.map(o => {
       const s = D.styles.find(s => s.id === o.styleId);
-      return '<article class="order-history-card"><div class="history-meta"><span>' + esc(o.date) + '</span><span class="status-chip">本机已保存</span></div><div class="history-product"><img src="' + s.image + '" alt="' + esc(o.styleName) + '"><div><h3>' + esc(o.styleName) + '</h3><p>' + esc(o.recipeName) + ' · ' + esc(o.diameter) + ' mm · ' + esc(o.quantity) + ' 颗</p><strong>¥ ' + esc(o.price) + '</strong></div></div><div class="history-actions"><button data-action="order-detail" data-id="' + esc(o.id) + '">查看详情</button><button data-action="reuse-order" data-id="' + esc(o.id) + '">再次搭配</button></div></article>';
-    }).join('') + '<p class="page-note">记录仅保存在当前浏览器，换设备后不会同步。</p>';
+      return '<article class="order-history-card"><div class="history-meta"><span>' + esc(o.date) + '</span><span class="status-chip">本次体验</span></div><div class="history-product"><img src="' + s.image + '" alt="' + esc(o.styleName) + '"><div><h3>' + esc(o.styleName) + '</h3><p>' + esc(o.recipeName) + ' · ' + esc(o.diameter) + ' mm · ' + esc(o.quantity) + ' 颗</p><strong>¥ ' + esc(o.price) + '</strong></div></div><div class="history-actions"><button data-action="order-detail" data-id="' + esc(o.id) + '">查看详情</button><button data-action="reuse-order" data-id="' + esc(o.id) + '">再次搭配</button></div></article>';
+    }).join('') + '<p class="page-note">记录只在本次体验内有效，刷新页面后会重新开始。</p>';
   }
   function favoritesMarkup() {
     const list = state.favorites.map(id => D.recipes.find(r => r.id === id)).filter(Boolean);
@@ -313,17 +294,17 @@
   }
 
   /* ---------------- actions ---------------- */
-  function selectRecipe(id, goNext = false) { const r = D.recipes.find(r => r.id === id); if (!r) return; state.plan.recipeId = id; state.resumeStep = 2; persist(); if (dialog.open) closeModal(); if (goNext) goTab('customize', 2); else render(); toast('已选用「' + r.name + '」'); }
+  function selectRecipe(id, goNext = false) { const r = D.recipes.find(r => r.id === id); if (!r) return; state.plan.recipeId = id; state.resumeStep = 2; if (dialog.open) closeModal(); if (goNext) goTab('customize', 2); else render(); toast('已选用「' + r.name + '」'); }
   function selectStyle(id, goNext = false) {
     const s = D.styles.find(s => s.id === id); if (!s) return; const previous = state.plan.diameter;
     state.plan.styleId = id; if (!s.allowed.includes(state.plan.diameter)) state.plan.diameter = s.allowed[0]; state.plan.autoQuantity = true; state.plan.quantity = estimatedQuantity();
-    state.resumeStep = recipe() ? 4 : 3; persist();
+    state.resumeStep = recipe() ? 4 : 3;
     if (dialog.open) closeModal();
     if (goNext) goTab('customize', recipe() ? 4 : 1); else render();
     toast('已选定「' + s.name + '」' + (previous !== state.plan.diameter ? '，珠径已适配为 ' + state.plan.diameter + ' mm' : ''));
   }
-  function updateFit(wrist, fitId) { if (wrist != null) state.plan.wrist = Math.min(22, Math.max(13, Math.round(Number(wrist) * 2) / 2)); if (fitId) state.plan.fit = fitId; state.plan.wristConfirmed = false; state.plan.autoQuantity = true; state.plan.quantity = estimatedQuantity(); persist(); render(); }
-  function toggleFavorite(id) { state.favorites = state.favorites.includes(id) ? state.favorites.filter(x => x !== id) : state.favorites.concat(id); persist(); renderRecipes(); renderTabBar(); if (state.page === 'favorites') renderPage(); if (state.tab === 'mine') renderMine(); toast(state.favorites.includes(id) ? '已收藏这味香方' : '已取消收藏'); }
+  function updateFit(wrist, fitId) { if (wrist != null) state.plan.wrist = Math.min(22, Math.max(13, Math.round(Number(wrist) * 2) / 2)); if (fitId) state.plan.fit = fitId; state.plan.wristConfirmed = false; state.plan.autoQuantity = true; state.plan.quantity = estimatedQuantity(); render(); }
+  function toggleFavorite(id) { state.favorites = state.favorites.includes(id) ? state.favorites.filter(x => x !== id) : state.favorites.concat(id); renderRecipes(); renderTabBar(); if (state.page === 'favorites') renderPage(); if (state.tab === 'mine') renderMine(); toast(state.favorites.includes(id) ? '已收藏这味香方' : '已取消收藏'); }
 
   function showRecipe(id, origin = 'catalog') {
     const r = D.recipes.find(r => r.id === id); if (!r) return;
@@ -339,7 +320,7 @@
   function answerQuestion(value, button) {
     if (answerLocked) return; answerLocked = true; const index = state.quiz.index; state.quiz.answers[index] = value;
     button.classList.add('selected'); $('page-body').querySelectorAll('[data-action="answer"]').forEach(b => b.disabled = true);
-    if (index < 29) state.quiz.index = index + 1; else state.quiz.complete = true; persist();
+    if (index < 29) state.quiz.index = index + 1; else state.quiz.complete = true;
     quizTimer = setTimeout(() => {
       if (state.page !== 'quiz' || modalType === 'recipe') return;
       if (state.quiz.complete) { state.quizView = 'result'; renderPage(); renderHome(); renderMine(); } else { renderPage(); }
@@ -356,9 +337,9 @@
     return { profile, primary, secondary, preferred };
   }
 
-  function orderText(o) { return ['香慧 · 合香珠定制申请', '申请编号：' + o.id, '香方：' + o.recipeName, '款式：' + o.styleName, '手围：' + (o.fixed ? '长串 / 手持' : Number(o.wrist).toFixed(1) + ' cm'), '佩戴感：' + o.fitName, '珠径：' + o.diameter + ' mm', '颗数：' + o.quantity + ' 颗', '预计价格：¥ ' + o.price, '称呼：' + o.name, '手机号：' + o.phone, '备注：' + (o.note || '无'), '创建时间：' + o.date, '体验申请仅保存在当前浏览器，不产生真实付款。'].join('\n'); }
+  function orderText(o) { return ['香慧 · 合香珠定制申请', '申请编号：' + o.id, '香方：' + o.recipeName, '款式：' + o.styleName, '手围：' + (o.fixed ? '长串 / 手持' : Number(o.wrist).toFixed(1) + ' cm'), '佩戴感：' + o.fitName, '珠径：' + o.diameter + ' mm', '颗数：' + o.quantity + ' 颗', '预计价格：¥ ' + o.price, '称呼：' + o.name, '手机号：' + o.phone, '备注：' + (o.note || '无'), '创建时间：' + o.date, '本次体验的申请只留在当前页面，刷新后重新开始，不产生真实付款。'].join('\n'); }
   function showOrder(o, success = false) {
-    const content = '<div class="order-success">' + (success ? '<div class="success-icon">' + icon('check') + '</div>' : '') + '<h3>' + (success ? '心意，已为你记下' : '你的专属定制申请') + '</h3><p>' + (success ? '这一串的香与形，已保存为定制申请。<br>你可以复制方案，或随时回来查看。' : '申请保存在当前浏览器，可复制或下载留存。') + '</p><div class="order-number">' + esc(o.id) + ' · ' + esc(o.date) + '</div><div class="success-plan"><div><span>香方</span><strong>' + esc(o.recipeName) + '</strong></div><div><span>款式</span><strong>' + esc(o.styleName) + '</strong></div><div><span>规格</span><strong>' + esc(o.diameter) + ' mm · ' + esc(o.quantity) + ' 颗</strong></div><div><span>手围 / 佩戴感</span><strong>' + (o.fixed ? '长串 / 手持' : esc(Number(o.wrist).toFixed(1)) + ' cm · ' + esc(o.fitName)) + '</strong></div><div><span>参考价格</span><strong>¥ ' + esc(o.price) + '</strong></div><div><span>联系信息</span><strong>' + esc(o.name) + ' · ' + esc(o.phone) + '</strong></div>' + (o.note ? '<p>备注：' + esc(o.note) + '</p>' : '') + '</div><button class="primary-button" data-action="copy-order" data-id="' + esc(o.id) + '">复制定制方案 <span>↗</span></button><button class="secondary-button" data-action="download-order" data-id="' + esc(o.id) + '">下载方案文本</button><button class="text-button center" style="margin-top:17px" data-action="orders">查看我的申请 →</button><p style="font-size:12px;margin-top:15px">体验申请不会发给商家，也不会产生付款。</p></div>';
+    const content = '<div class="order-success">' + (success ? '<div class="success-icon">' + icon('check') + '</div>' : '') + '<h3>' + (success ? '心意，已为你记下' : '你的专属定制申请') + '</h3><p>' + (success ? '这一串的香与形，已记为本次的定制申请。<br>你可以复制方案，或随时回来查看。' : '申请只留在当前页面，刷新后会重新开始，可复制或下载留存。') + '</p><div class="order-number">' + esc(o.id) + ' · ' + esc(o.date) + '</div><div class="success-plan"><div><span>香方</span><strong>' + esc(o.recipeName) + '</strong></div><div><span>款式</span><strong>' + esc(o.styleName) + '</strong></div><div><span>规格</span><strong>' + esc(o.diameter) + ' mm · ' + esc(o.quantity) + ' 颗</strong></div><div><span>手围 / 佩戴感</span><strong>' + (o.fixed ? '长串 / 手持' : esc(Number(o.wrist).toFixed(1)) + ' cm · ' + esc(o.fitName)) + '</strong></div><div><span>参考价格</span><strong>¥ ' + esc(o.price) + '</strong></div><div><span>联系信息</span><strong>' + esc(o.name) + ' · ' + esc(o.phone) + '</strong></div>' + (o.note ? '<p>备注：' + esc(o.note) + '</p>' : '') + '</div><button class="primary-button" data-action="copy-order" data-id="' + esc(o.id) + '">复制定制方案 <span>↗</span></button><button class="secondary-button" data-action="download-order" data-id="' + esc(o.id) + '">下载方案文本</button><button class="text-button center" style="margin-top:17px" data-action="orders">查看我的申请 →</button><p style="font-size:12px;margin-top:15px">体验申请不会发给商家，也不会产生付款。</p></div>';
     showModal(success ? 'success' : 'order-detail', sheet(success ? '定制申请已保存' : '定制申请详情', content), o);
   }
   function submitOrder(event) {
@@ -378,7 +359,7 @@
     submitting = true; const now = new Date(); const date = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
     const id = 'XH' + String(now.getFullYear()).slice(2) + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '-' + now.getTime().toString(36).slice(-5).toUpperCase();
     const o = { id, date, recipeId: r.id, styleId: s.id, recipeName: r.name, styleName: s.name, wrist: state.plan.wrist, fit: state.plan.fit, fitName: fit().name, diameter: state.plan.diameter, quantity: state.plan.quantity, fixed: s.fixed, price: price(), name, phone, note };
-    state.orders.unshift(o); state.orders = state.orders.slice(0, 40); const saved = persist(); renderTabBar(); showOrder(o, true); submitting = false; if (!saved) toast('浏览器未允许持久保存，请复制或下载方案留存');
+    state.orders.unshift(o); state.orders = state.orders.slice(0, 40); renderTabBar(); showOrder(o, true); submitting = false;
   }
   async function copyOrder(o) {
     const text = orderText(o);
@@ -417,13 +398,13 @@
     if (action === 'wrist-preset') { updateFit(value); return; }
     if (action === 'wrist-down' || action === 'wrist-up') { updateFit(state.plan.wrist + (action === 'wrist-up' ? .5 : -.5)); return; }
     if (action === 'fit') { updateFit(null, id); return; }
-    if (action === 'diameter') { if (style() && !style().allowed.includes(value)) return; state.plan.diameter = value; state.plan.autoQuantity = true; state.plan.quantity = estimatedQuantity(); persist(); render(); return; }
-    if (action === 'quantity-down' || action === 'quantity-up') { if (style() && style().fixed) return; state.plan.quantity = Math.min(150, Math.max(8, state.plan.quantity + (action === 'quantity-up' ? 1 : -1))); state.plan.autoQuantity = false; persist(); render(); return; }
+    if (action === 'diameter') { if (style() && !style().allowed.includes(value)) return; state.plan.diameter = value; state.plan.autoQuantity = true; state.plan.quantity = estimatedQuantity(); render(); return; }
+    if (action === 'quantity-down' || action === 'quantity-up') { if (style() && style().fixed) return; state.plan.quantity = Math.min(150, Math.max(8, state.plan.quantity + (action === 'quantity-up' ? 1 : -1))); state.plan.autoQuantity = false; render(); return; }
     if (action === 'close') { closeModal(); return; }
     if (action === 'quiz-start') { state.quiz.index = 0; state.quizView = 'question'; renderPage(); return; }
     if (action === 'quiz-continue') { state.quizView = 'question'; renderPage(); return; }
-    if (action === 'quiz-restart') { clearTimeout(quizTimer); state.quiz = { answers: D.questions.map(() => null), index: 0, complete: false }; state.quizView = 'question'; persist(); render(); return; }
-    if (action === 'quiz-back') { if (state.quiz.index > 0) { clearTimeout(quizTimer); state.quiz.index--; persist(); renderPage(); } return; }
+    if (action === 'quiz-restart') { clearTimeout(quizTimer); state.quiz = { answers: D.questions.map(() => null), index: 0, complete: false }; state.quizView = 'question'; render(); return; }
+    if (action === 'quiz-back') { if (state.quiz.index > 0) { clearTimeout(quizTimer); state.quiz.index--; renderPage(); } return; }
     if (action === 'answer') { answerQuestion(value, b); return; }
     if (action === 'result-recipe-detail') { showRecipe(id, 'result'); return; }
     if (action === 'result-browse') { goTab('customize', 1); return; }
@@ -433,10 +414,10 @@
     if (action === 'copy-order') { const o = state.orders.find(o => o.id === id); if (o) copyOrder(o); return; }
     if (action === 'download-order') { const o = state.orders.find(o => o.id === id); if (o) downloadOrder(o); return; }
     if (action === 'reuse-order') {
-      const o = state.orders.find(o => o.id === id); if (!o) return; Object.assign(state.plan, { recipeId: o.recipeId, styleId: o.styleId, wrist: o.wrist, fit: o.fit, diameter: o.diameter, quantity: o.quantity, autoQuantity: false, wristConfirmed: true }); state.series = recipe().series; state.styleCategory = style().category; state.resumeStep = 4; persist(); goTab('customize', 4); toast('已带入原方案，可以继续调整'); return;
+      const o = state.orders.find(o => o.id === id); if (!o) return; Object.assign(state.plan, { recipeId: o.recipeId, styleId: o.styleId, wrist: o.wrist, fit: o.fit, diameter: o.diameter, quantity: o.quantity, autoQuantity: false, wristConfirmed: true }); state.series = recipe().series; state.styleCategory = style().category; state.resumeStep = 4; goTab('customize', 4); toast('已带入原方案，可以继续调整'); return;
     }
     if (action === 'reset-plan') {
-      Object.assign(state.plan, defaults()); state.series = 'premium'; state.styleCategory = 'single'; state.scent = '全部'; state.query = ''; state.recipeExpanded = false; state.styleExpanded = false; $('recipe-search').value = ''; $('form-error').hidden = true; ['name', 'phone'].forEach(field => { $(field + '-error').hidden = true; $('contact-' + field).removeAttribute('aria-invalid'); }); state.resumeStep = 1; persist(); render(); jump(1); toast('已开启新的搭配，申请记录仍保留');
+      Object.assign(state.plan, defaults()); state.series = 'premium'; state.styleCategory = 'single'; state.scent = '全部'; state.query = ''; state.recipeExpanded = false; state.styleExpanded = false; $('recipe-search').value = ''; $('form-error').hidden = true; ['name', 'phone'].forEach(field => { $(field + '-error').hidden = true; $('contact-' + field).removeAttribute('aria-invalid'); }); state.resumeStep = 1; render(); jump(1); toast('已开启新的搭配，申请记录仍保留');
     }
   });
   $('recipe-search').addEventListener('input', event => { state.query = event.target.value; state.recipeExpanded = false; renderRecipes(); });
@@ -448,5 +429,5 @@
   dialog.addEventListener('click', event => { if (event.target === dialog) closeModal(); });
 
   if (state.activeStep > availableStep()) state.activeStep = availableStep();
-  render(); persist();
+  render();
 })();
