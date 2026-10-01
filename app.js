@@ -195,7 +195,7 @@
   function renderMine() {
     const last = state.orders[0];
     $('mine-profile').innerHTML = '<span class="avatar" aria-hidden="true">' + (last ? esc(String(last.name).slice(0, 1)) : '香') + '</span><div class="mine-id"><h2>' + (last ? esc(last.name) : '你好，初次见面') + '</h2></div>';
-    $('mine-ongoing').textContent = r || s || state.plan.wristConfirmed ? '第 ' + availableStep() + ' 步 · ' + stepNames[availableStep()] : '去开始';
+    $('mine-ongoing').textContent = state.plan.recipeId || state.plan.styleId || state.plan.wristConfirmed ? '第 ' + availableStep() + ' 步 · ' + stepNames[availableStep()] : '去开始';
     $('mine-orders').textContent = state.orders.length + ' 条';
     $('mine-favorites').textContent = state.favorites.length + ' 味';
     const answered = state.quiz.answers.filter(a => a !== null).length;
@@ -259,7 +259,10 @@
     return '<div class="info-content"><p class="eyebrow">HEXIANG ATELIER</p><h3>一珠一香方，<br>一串一个你。</h3><p>合香，是把草木的气息，凝成可以随身相伴的一颗珠。我们希望让选择香气这件事，回到简单而自然的心意。</p><div class="info-row"><span>香</span><div><h4>先寻一味喜欢的香</h4><p>从木香、花香、草本与果香中，寻找与你相契的气息。</p></div></div><div class="info-row"><span>形</span><div><h4>再选一种自在的模样</h4><p>单圈的简洁、双圈的层次，或一串沉静的长珠，由你决定。</p></div></div><div class="info-row"><span>你</span><div><h4>让每一处，都贴近自己</h4><p>从手围到珠径，从佩戴感到颗数，慢慢完成属于你的定制方案。</p></div></div></div>';
   }
   function renderPage() {
-    if (state.page === 'quiz') $('page-body').innerHTML = state.quizView === 'result' ? resultMarkup() : state.quizView === 'intro' ? quizIntroMarkup() : quizQuestionMarkup();
+    if (state.page === 'quiz') {
+      $('page-body').innerHTML = state.quizView === 'result' ? resultMarkup() : state.quizView === 'intro' ? quizIntroMarkup() : quizQuestionMarkup();
+      if (state.quizView === 'question') answerLocked = false;
+    }
     else if (state.page === 'orders') $('page-body').innerHTML = ordersMarkup();
     else if (state.page === 'favorites') $('page-body').innerHTML = favoritesMarkup();
     else $('page-body').innerHTML = infoMarkup(state.page);
@@ -322,7 +325,7 @@
     button.classList.add('selected'); $('page-body').querySelectorAll('[data-action="answer"]').forEach(b => b.disabled = true);
     if (index < 29) state.quiz.index = index + 1; else state.quiz.complete = true;
     quizTimer = setTimeout(() => {
-      if (state.page !== 'quiz' || modalType === 'recipe') return;
+      if (state.page !== 'quiz') return;
       if (state.quiz.complete) { state.quizView = 'result'; renderPage(); renderHome(); renderMine(); } else { renderPage(); }
       if (window.scrollY > 24) window.scrollTo({ top: 0, behavior: 'instant' });
       requestAnimationFrame(() => { const f = $('page-body').querySelector('[data-page-focus]'); if (f) f.focus({ preventScroll: true }); });
@@ -359,7 +362,7 @@
     submitting = true; const now = new Date(); const date = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
     const id = 'XH' + String(now.getFullYear()).slice(2) + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + '-' + now.getTime().toString(36).slice(-5).toUpperCase();
     const o = { id, date, recipeId: r.id, styleId: s.id, recipeName: r.name, styleName: s.name, wrist: state.plan.wrist, fit: state.plan.fit, fitName: fit().name, diameter: state.plan.diameter, quantity: state.plan.quantity, fixed: s.fixed, price: price(), name, phone, note };
-    state.orders.unshift(o); state.orders = state.orders.slice(0, 40); renderTabBar(); showOrder(o, true); submitting = false;
+    state.orders.unshift(o); state.orders = state.orders.slice(0, 40); submitting = false; renderTabBar(); showOrder(o, true);
   }
   async function copyOrder(o) {
     const text = orderText(o);
